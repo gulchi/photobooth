@@ -8,12 +8,30 @@ from pygame.locals import *
 import datetime
 import os, errno
 import os.path
+import sys, getopt
+import subprocess
 
 
 directory = 'output' 
 number_of_picture = 4
-textcolor = (150,250,150)
-shadowcolor = (60,60,60)
+textcolor = (120,120,250)
+shadowcolor = (30,30,30)
+font = 'Droid Sans Mono'
+
+###################################################################
+
+printhook = ""
+print_enabled = False
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"",["printhook="])
+except getopt.GetoptError:
+        print 'photobooth.py --printhook <hookfile>'
+        sys.exit(2)
+for opt, arg in opts:
+    if opt in ("--printhook"):
+        printhook = arg
+        print_enabled = True
 
 try:
         os.makedirs(directory)
@@ -31,7 +49,10 @@ class Background(pygame.sprite.Sprite):
 def textDropShadow(font, message, offset, fontcolor, shadowcolor):
     base = font.render(message, 0, fontcolor)
     size = base.get_width() + offset, base.get_height() + offset
-    img = pygame.Surface(size, 16)
+    #img = pygame.Surface(size, 16)
+    img = pygame.Surface(size, pygame.SRCALPHA,32)
+    img = img.convert_alpha()
+
     base.set_palette_at(1, shadowcolor)
     img.blit(base, (offset, offset))
     base.set_palette_at(1, fontcolor)
@@ -57,16 +78,22 @@ if dispy > monitory: # scales screen down if too tall
 dispx = int(dispx) # So your resolution does not contain decimals
 dispy = int(dispy)
 
+dispx = monitorx
+dispy = monitory
+
 print dispx, dispy
 
 screen = pygame.display.set_mode((dispx,dispy), pygame.FULLSCREEN)
 BackGround = Background('gray-slate-background.jpg', [0,0])
+BackGround = Background('background1.jpg', [0,0])
+BackGround = Background('background2.png', [0,0])
 
 screen.fill([255, 255, 255])
 screen.blit(BackGround.image, BackGround.rect)
 pygame.display.update()
 
-myfont = pygame.font.SysFont('Droid Sans Mono', 120)
+bigfont = pygame.font.SysFont(font, 300)
+smallfont = pygame.font.SysFont(font, 120)
 pygame.mouse.set_visible(0)
 
 pygame.display.update()
@@ -77,6 +104,7 @@ camera = picamera.PiCamera()
 camera.vflip = True
 
 pictures = []
+pic_preview_width = 10;
 
 def getFilename(prefix, number):
     return str(directory) + '/' + str(prefix) + '_' + str(number) + '.jpg'
@@ -85,10 +113,21 @@ def takePhotoSerie():
     global pictures
     pictures = []
     fileprefix = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
-    for i in range(4):
+    for i in range(number_of_picture):
         pictures.append(takePicture(fileprefix, i))
     
     thank_you()
+
+
+    if print_enabled:
+        # Start printing
+        # build hook call list
+        hook = []
+        hook.append(str(printhook))
+        for i in range(number_of_picture):
+            hook.append(str(getFilename(fileprefix, i)))
+        subprocess.Popen(hook)
+
     pygame.time.wait(20000)
     start_screen()
 
@@ -103,42 +142,34 @@ def showPictures():
         posx = int(posx)
         posy = int(posy)
 
-        #print 'Position ' + str(posx) + ' ' + str(posy)
-
         screen.blit(img, (posx, posy))
 
 def takePicture(filename, file_number, wait_time = 10):
-    textx = 1000
+    global pic_preview_width
+    textx = ((dispx - 840)/2) + 840
     texty = 220
-    textcolor = (200,200,200)
-    shadowcolor = (40,40,40)
-    myfont = pygame.font.SysFont('Droid Sans Mono', 300)
-    myfont_ready = pygame.font.SysFont('Droid Sans Mono', 120)
-
-    
 
     if wait_time < 5:
         wait_time = 5
+    
+    camera.resolution = (640,480)
+    camera.start_preview(fullscreen=False, window=(200,200,640,480))
 
     for i in range(wait_time):
+        
         screen.fill([255, 255, 255])
         screen.blit(BackGround.image, BackGround.rect)
-        text_sh = myfont.render(str(10-i), False, shadowcolor)
-        screen.blit(text_sh,(textx + 20, texty + 20))
-        text_fg = myfont.render(str(10-i), False, textcolor)
-        screen.blit(text_fg,(textx,texty))
-        if i == (wait_time-5):
-            camera.resolution = (640,480)
-            camera.start_preview(fullscreen=False, window=(200,200,640,480))
         
-        if i < (wait_time -3):
-            text_sh = myfont_ready.render('get ready ...', False, shadowcolor)
-            screen.blit(text_sh,(300 + 10, 800 + 10))
-            text_fg = myfont_ready.render('get ready ...', False, textcolor)
-            screen.blit(text_fg,(300,800))
-
         if file_number > 0:
             showPictures()
+
+        c = textDropShadow(bigfont, str(10-i), 20, textcolor, shadowcolor)
+        screen.blit(c, (textx-(c.get_size()[0]/2), texty))
+        
+        if i < (wait_time - 2):
+            gr = textDropShadow(smallfont, 'get ready ...', 10, textcolor, shadowcolor)
+            gr_rect = gr.get_size()
+            screen.blit(gr, (int((dispx/2)-(gr_rect[0]/2)), 800))
 
         pygame.display.update()
         pygame.time.wait(1000)
@@ -148,23 +179,19 @@ def takePicture(filename, file_number, wait_time = 10):
     camera.capture(getFilename(filename, file_number))
     screen.fill([255, 255, 255])
     screen.blit(BackGround.image, BackGround.rect)
-    text_sh = myfont_ready.render('get ready ...', False, shadowcolor)
-    screen.blit(text_sh,(300 + 10, 800 + 10))
-    text_fg = myfont_ready.render('get ready ...', False, textcolor)
-    screen.blit(text_fg,(300,800))
+    if file_number > 0:
+        showPictures()
     pygame.display.update()
 
     os.path.isfile(getFilename(filename, file_number))
     
     photo_height = dispy/4
-    #print photo_height
     photo_height = int(photo_height)
     img = pygame.image.load(getFilename(filename, file_number))
     isize = img.get_size()
-    #print isize
     photo_width = (photo_height/isize[1])*isize[0]
-    #print 'Photo_widht ' + str(photo_width)
     photo_width = int(photo_width)
+    pic_preview_width = photo_width
     img = pygame.transform.scale(img, (photo_width, photo_height))
     return(img)
     
@@ -172,41 +199,37 @@ def takePicture(filename, file_number, wait_time = 10):
 def thank_you():
     screen.fill([255, 255, 255])
     screen.blit(BackGround.image, BackGround.rect)
-    myfont = pygame.font.SysFont('Droid Sans Mono', 250)
-    text_thankyou_sh = myfont.render('thank', False, shadowcolor)
-    screen.blit(text_thankyou_sh,(50+20,200+20))
-    text_thankyou = myfont.render('thank', False, textcolor)
-    screen.blit(text_thankyou,(50,200))
-    text_thankyou_sh = myfont.render('you!', False, shadowcolor)
-    screen.blit(text_thankyou_sh,(300+20,500+20))
-    text_thankyou = myfont.render('you!', False, textcolor)
-    screen.blit(text_thankyou,(300,500))
+    t = textDropShadow(bigfont, 'thank', 20, textcolor, shadowcolor)
+    screen.blit(t, (int(((dispx-pic_preview_width)/2)-(t.get_size()[0]/2)), 200))
+    t = textDropShadow(bigfont, 'you', 20, textcolor, shadowcolor)
+    screen.blit(t, (int(((dispx-pic_preview_width)/2)-(t.get_size()[0]/2)), 450))
     showPictures()
     pygame.display.update()
 
 
 def start_screen():
-    textcolor = (150,250,150)
-    shadowcolor = (60,60,60)
     screen.fill([255, 255, 255])
     screen.blit(BackGround.image, BackGround.rect)
-    text_start_sh = myfont.render('Press button to start!', False, shadowcolor)
-    screen.blit(text_start_sh,(100+10,300+10))
-    text_start = myfont.render('Press button to start!', False, textcolor)
-    screen.blit(text_start,(100,300))
+    t = textDropShadow(smallfont, 'Press button', 10, textcolor, shadowcolor)
+    screen.blit(t, (int((dispx/2)-(t.get_size()[0]/2)), int((dispy/2)-(t.get_size()[1])-75)))
+    t = textDropShadow(smallfont, 'to start', 10, textcolor, shadowcolor)
+    screen.blit(t, (int((dispx/2)-(t.get_size()[0]/2)), int((dispy/2)-(t.get_size()[1])+75)))
     pygame.display.update()
 
 
+while 1:
+    start_screen()
+    pygame.time.wait(int(1000/25))
+    event = pygame.event.poll()
+    if event.type is pygame.KEYDOWN and ((event.key == pygame.K_RETURN) or (event.key == pygame.K_SPACE)):
+        takePhotoSerie()
+    
+    if event.type is pygame.KEYDOWN and ((event.key == pygame.K_ESCAPE)):
+        break
 
-start_screen()
-time.sleep(5)
 
-takePhotoSerie()
 
-time.sleep(5)
 
-takePhotoSerie()
 
-time.sleep(15)
 
 
