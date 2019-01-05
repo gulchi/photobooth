@@ -23,7 +23,8 @@ if np < 1:
 
 if np == 4:
 
-    call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"2460x1846+20+20", output_file])
+    #call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"2460x1846+20+20", output_file])
+    call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"2460x1846+20+20", "-texture", "printer-background.jpg", output_file])
     conn = cups.Connection()
     printers = conn.getPrinters()
     printer_name = printers.keys()[0]
