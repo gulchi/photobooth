@@ -1,4 +1,6 @@
 #!/bin/bash
+pushd `dirname $0` > /dev/null
+SCRIPTPATH=`pwd -P`
 
 sudo apt-get install usbmount -y
 sudo apt-get install ntfs-3g -y
@@ -11,3 +13,6 @@ sudo apt install python-pip -y
 
 sudo pip install qrcode
 sudo pip install pyocclient
+
+
+echo "@/bin/bash $SCRIPTPATH/software/start.sh &" >> ~/.config/lxsession/LXDE-pi/autostart
