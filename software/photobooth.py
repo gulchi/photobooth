@@ -243,8 +243,8 @@ def displayPrintQueue():
         queue = int(subprocess.check_output('lpstat -o | wc -l', shell=True))
         if queue > 0:
             t = textDropShadow(tinyfont, str(queue), 5, textcolor, shadowcolor)
-            x = int(dispx - 20 - t.get_size()[0])
-            y = int((t.get_size()[1]) )
+            x = int(t.get_size()[0])
+            y = int(dispy - (t.get_size()[1]) )
             screen.blit(t, (x, y))
     except OSError:
         print "Error while getting print queue"
