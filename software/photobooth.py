@@ -25,11 +25,11 @@ font = 'Droid Sans Mono'
 background_image = 'background.png'
 
 ######### Strings
-start1 = u"Zum starten den"
-start2 = u"gelben Knopf drücken"
+start1 = u"Drücke den"
+start2 = u"gelben Knopf"
 
-start3 = 'Es werden vier Bilder'
-start4 = 'mit jeweils 10 Sekunden pause gemacht'
+start3 = 'Vier Bilder'
+start4 = 'mit 10 Sekunden Pause'
 
 thankyou1 = 'Danke'
 thankyou2 = ''
