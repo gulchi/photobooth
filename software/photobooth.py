@@ -21,17 +21,14 @@ GPIO.setmode(GPIO.BCM)     # set up BCM GPIO numbering
 button = 19
 led_button = 20
 
-led_red = 17
-led_green = 6
-led_blue = 27
 
 GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)    # set GPIO 25 as input
 GPIO.setup(led_button, GPIO.OUT)
 
 start_time = time.time()
 
-#directory = 'output' 
-directory = '/dev/shm' 
+#directory = 'output'
+directory = '/dev/shm'
 number_of_picture = 4
 #textcolor = (120,120,250)
 #textcolor = (183,65,14) # Race Background
@@ -49,7 +46,6 @@ ser.write("i\r\n")
 printhook = ""
 print_enabled = False
 
-leds = (True, True, True)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:],"",["printhook="])
@@ -76,10 +72,8 @@ def check_usb():
         if os.access(usb_dir, os.W_OK):
             return True
 
-    return False        
-        
-    
-    
+    return False
+
 
 def copy_files_to_usb(files):
     usb_dir = usb_mount + "/photobooth/output/"
@@ -104,7 +98,7 @@ def delete_raw_files(files):
         try:
             #os.remove(f)
 
-            command = "sleep 300 && rm " + str(f) 
+            command = "sleep 300 && rm " + str(f)
             print " ---- " + command
             subprocess.Popen(command, shell=True)
         except (IOError, os.error) as why:
@@ -215,22 +209,23 @@ button_pressed = False;
 def my_gpio_callback(channel):
     global button_pressed
     global start_time
-	
+
     level = GPIO.input(channel)
-	
+
     if not level:
         start_time = time.time()
     else:
         if (time.time() - start_time) >= 10:
             shutdown()
         else:
-           button_pressed = True
-	   
-  
+            if pygame.time.get_ticks() > 3000:
+                button_pressed = True
+
+
 
 def shutdown():
     subprocess.call("sudo shutdown -h now", shell=True)
-	
+
 
 def getFilename(prefix, number):
     return str(directory) + '/' + str(prefix) + '_' + str(number) + '.jpg'
@@ -242,7 +237,7 @@ def takePhotoSerie():
     GPIO.output(led_button, False)
     for i in range(number_of_picture):
         pictures.append(takePicture(fileprefix, i))
-    
+
     thank_you()
 
     files = []
@@ -261,7 +256,7 @@ def takePhotoSerie():
             hook.append(str(getFilename(fileprefix, i)))
         subprocess.Popen(hook)
 
-    
+
 
     pygame.time.wait(15000)
     delete_raw_files(files)
@@ -288,7 +283,7 @@ def takePicture(filename, file_number, wait_time = 10):
 
     if wait_time < 5:
         wait_time = 5
-    
+
     camera.resolution = (640,480)
     camera.start_preview(fullscreen=False, window=(200,200,640,480))
     camera.vflip = False
@@ -297,13 +292,13 @@ def takePicture(filename, file_number, wait_time = 10):
         atime = pygame.time.get_ticks()
         screen.fill([255, 255, 255])
         screen.blit(BackGround.image, BackGround.rect)
-        
+
         if file_number > 0:
             showPictures()
-        
+
         c = textDropShadow(bigfont, str(10-i), 20, textcolor, shadowcolor)
         screen.blit(c, (textx-(c.get_size()[0]/2), texty))
-        
+
         if i < (wait_time - 2):
             gr = textDropShadow(smallfont, 'get ready ...', 10, textcolor, shadowcolor)
             gr_rect = gr.get_size()
@@ -316,7 +311,7 @@ def takePicture(filename, file_number, wait_time = 10):
         if waittime <= 0:
             waittime = 1
         pygame.time.wait(waittime)
-            
+
     camera.stop_preview()
     camera.resolution = (3280,2464)
     ser.write("f\r\n");
@@ -328,7 +323,7 @@ def takePicture(filename, file_number, wait_time = 10):
     pygame.display.update()
 
     os.path.isfile(getFilename(filename, file_number))
-    
+
     photo_height = dispy/4
     photo_height = int(photo_height)
     img = pygame.image.load(getFilename(filename, file_number))
@@ -339,7 +334,7 @@ def takePicture(filename, file_number, wait_time = 10):
     img = pygame.transform.scale(img, (photo_width, photo_height))
     ser.write("iii\r\n");
     return(img)
-    
+
 
 def thank_you():
     screen.fill([255, 255, 255])
@@ -351,14 +346,14 @@ def thank_you():
 
     t = textDropShadow(tinyfont, 'it might take one or two minutes', 3, textcolor, shadowcolor)
     x = int(dispx - pic_preview_width - 20 - t.get_size()[0])
-    y = int(dispy - (t.get_size()[1] * 3))  
+    y = int(dispy - (t.get_size()[1] * 3))
     screen.blit(t, (x, y))
-   
+
     t = textDropShadow(tinyfont, 'to get the photos ready ...', 3, textcolor, shadowcolor)
     x = int(dispx - pic_preview_width - 20 - t.get_size()[0])
-    y = int(dispy - (t.get_size()[1] * 2))  
+    y = int(dispy - (t.get_size()[1] * 2))
     screen.blit(t, (x, y))
-    
+
     showPictures()
     pygame.display.update()
 
@@ -370,15 +365,15 @@ def start_screen():
     screen.blit(t, (int((dispx/2)-(t.get_size()[0]/2)), int((dispy/2)-(t.get_size()[1])-75)))
     t = textDropShadow(smallfont, 'to start', 10, textcolor, shadowcolor)
     screen.blit(t, (int((dispx/2)-(t.get_size()[0]/2)), int((dispy/2)-(t.get_size()[1])+75)))
-    
+
     t = textDropShadow(tinyfont, 'Four pictures are taken', 5, textcolor, shadowcolor)
     x = int(dispx - 20 - t.get_size()[0])
-    y = int(dispy - (t.get_size()[1]*3) )  
+    y = int(dispy - (t.get_size()[1]*3) )
     screen.blit(t, (x, y))
-	
+
     t = textDropShadow(tinyfont, 'with a delay of 10 seconds', 5, textcolor, shadowcolor)
     x = int(dispx - 20 - t.get_size()[0])
-    y = int(dispy - (t.get_size()[1] * 2))  
+    y = int(dispy - (t.get_size()[1] * 2))
     screen.blit(t, (x, y))
 
     try:
@@ -387,9 +382,9 @@ def start_screen():
         t = textDropShadow(tinyfont, 'Password: photobox', 10, textcolor, shadowcolor)
         screen.blit(t, (80, int(dispy-75)))
     except pygame.error, message:
-         print 'Cannot load image.'	
-		
-	
+         print 'Cannot load image.'
+
+
     pygame.display.update()
 
 cw = 0
@@ -419,16 +414,10 @@ while 1:
         pygame.event.clear()
         button_pressed = False
         idle_time = datetime.datetime.now()
-    
+
     if event.type is pygame.KEYDOWN and ((event.key == pygame.K_ESCAPE)):
         pygame.quit()
         GPIO.cleanup()
         break
 
     pygame.time.wait(25)
-
-
-
-
-
-
