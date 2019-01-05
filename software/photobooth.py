@@ -447,7 +447,7 @@ while 1:
         GPIO.cleanup()
         break
 		
-	if (time.time() - last_start_update) > 10:
+    if (time.time() - last_start_update) > 10:
         last_start_update = time.time()
         start_screen()	
 
