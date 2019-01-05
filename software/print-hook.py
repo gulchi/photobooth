@@ -37,7 +37,7 @@ if np == 4:
     # Wait until the job finishes
     counter=1
     waiter=True
-    while waiter
+    while waiter:
 	    counter+=1
 		
 		if conn.getJobs().get(print_id, None):
