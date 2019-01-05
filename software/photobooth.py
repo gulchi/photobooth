@@ -28,13 +28,13 @@ background_image = 'background.png'
 start1 = u"Drücke den"
 start2 = u"gelben Knopf"
 
-start3 = 'Es gibt vier Bilder'
-start4 = 'mit 10 Sekunden Pause'
+start3 = u"Es gibt vier Bilder"
+start4 = u"mit 10 Sekunden Pause"
 
-thankyou1 = 'Danke'
-thankyou2 = ' '
-thankyou3 = 'Bitte warte bis zu'
-thankyou4 = 'zwei Minuten für den Druck'
+thankyou1 = u"Danke"
+thankyou2 = u" "
+thankyou3 = u"Bitte warte zwei Minuten"
+thankyou4 = u"auf den Ausdruck"
 
 ######################## Config Ende
 
