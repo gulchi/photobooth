@@ -38,15 +38,15 @@ if np == 4:
     counter=1
     waiter=True
     while waiter:
-	    counter+=1
-		
-		if conn.getJobs().get(print_id, None):
-		    waiter = False
-			
-		if counter > 10:
-		    waiter = False
-			
-		time.sleep(10)	
+        counter+=1
+
+        if conn.getJobs().get(print_id, None):
+            waiter = False
+
+        if counter > 10:
+            waiter = False
+	
+        time.sleep(10)	
     
     time.sleep(10)
     os.unlink(output_file)
