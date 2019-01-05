@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import cups
 import time
@@ -34,7 +35,7 @@ if np == 4:
     # Wait until the job finishes
     while conn.getJobs().get(print_id, None):
         time.sleep(1)
-        unlink(output_file)
+        os.unlink(output_file)
 
 
 
