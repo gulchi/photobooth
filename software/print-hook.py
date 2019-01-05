@@ -8,6 +8,7 @@ import tempfile
 
 from subprocess import call
 
+
 np = len(sys.argv) -1
 if np < 1:
     print 'Not enough arguments'
@@ -17,7 +18,7 @@ new_file, output_file = tempfile.mkstemp(dir="/dev/shm/", suffix=".jpg", prefix=
 
 
 if np == 4:
-
+    start = time.time()
     #call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"2460x1846+20+20", output_file])
     #call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"2460x1846+20+20", "-texture", "printer-background.jpg", output_file])
     call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"870x653+4+4", output_file])
@@ -31,6 +32,11 @@ if np == 4:
 
     print_id = conn.printFile(printer_name, output_file, "Photo Booth", {})
     # Wait until the job finishes
+
+    end = time.time()
+	
+    print "It took " + str(end-start) + " to print the picture"
+
     counter=1
     waiter=True
     while waiter:
