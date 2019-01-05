@@ -431,7 +431,7 @@ while 1:
         idle_time = datetime.datetime.now()
 
     if event.type is pygame.KEYDOWN and ((event.key == pygame.K_ESCAPE)):
-		camera.close()
+        camera.close()
         pygame.quit()
         GPIO.cleanup()
         break
