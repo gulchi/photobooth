@@ -8,24 +8,20 @@ import tempfile
 
 from subprocess import call
 
-new_file, output_file = tempfile.mkstemp(dir="/dev/shm/", suffix=".jpg", prefix="print-hook")
-
-
-
-#output_file = "/dev/shm/print-tile.jpg"
-
 np = len(sys.argv) -1
-
 if np < 1:
     print 'Not enough arguments'
     quit()
+
+new_file, output_file = tempfile.mkstemp(dir="/dev/shm/", suffix=".jpg", prefix="print-hook")
 
 
 if np == 4:
 
     #call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"2460x1846+20+20", output_file])
-    call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"2460x1846+20+20", "-texture", "printer-background.jpg", output_file])
-    conn = cups.Connection()
+    #call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"2460x1846+20+20", "-texture", "printer-background.jpg", output_file])
+    call(["montage", sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "-tile", "2x2", "-geometry" ,"870x586+4+4", output_file])
+	conn = cups.Connection()
     printers = conn.getPrinters()
     printer_name = printers.keys()[0]
     printer_name = "Canon_CP1000"
