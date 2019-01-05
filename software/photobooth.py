@@ -272,7 +272,7 @@ def takePhotoSerie():
     pygame.time.wait(15000)
     delete_raw_files(files)
     GPIO.output(led_button, True)
-	button_pressed = False
+    button_pressed = False
     start_screen()
 
 def showPictures():
