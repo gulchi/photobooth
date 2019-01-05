@@ -241,13 +241,13 @@ def shutdown():
 def displayPrintQueue():
     try:
         queue = int(subprocess.check_output('lpstat -o | wc -l', shell=True))
-		if queue > 0:
+        if queue > 0:
             t = textDropShadow(tinyfont, str(queue), 5, textcolor, shadowcolor)
             x = int(dispx - 20 - t.get_size()[0])
             y = int((t.get_size()[1]) )
             screen.blit(t, (x, y))
-	except OSError:
-		print "Error while getting print queue"
+    except OSError:
+        print "Error while getting print queue"
 
 def getFilename(prefix, number):
     return str(directory) + '/' + str(prefix) + '_' + str(number) + '.jpg'
