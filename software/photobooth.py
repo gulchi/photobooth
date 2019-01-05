@@ -14,7 +14,28 @@ import RPi.GPIO as GPIO
 import serial
 import shutil
 
+######################## Config
+#textcolor = (120,120,250)
+#textcolor = (183,65,14) # Race Background
 
+textcolor = (140,10,10)
+shadowcolor = (30,30,30)
+font = 'Droid Sans Mono'
+background_image = 'background.png'
+
+######### Strings
+start1 = 'Zum starten den'
+start2 = 'gelben Knopf drücken'
+
+start3 = 'Es werden vier Bilder'
+start4 = 'mit jeweils 10 Sekunden pause gemacht'
+
+thankyou1 = 'Danke'
+thankyou2 = ''
+thankyou3 = 'Bitte warte bis zu'
+thankyou4 = 'zwei Minuten für den Druck'
+
+######################## Config Ende
 
 GPIO.setmode(GPIO.BCM)     # set up BCM GPIO numbering
 
@@ -27,15 +48,8 @@ GPIO.setup(led_button, GPIO.OUT)
 
 start_time = time.time()
 
-#directory = 'output'
 directory = '/dev/shm'
 number_of_picture = 4
-#textcolor = (120,120,250)
-#textcolor = (183,65,14) # Race Background
-textcolor = (140,10,10)
-shadowcolor = (30,30,30)
-font = 'Droid Sans Mono'
-
 usb_mount = "/media/usb0/"
 
 ser = serial.Serial('/dev/ttyACM0', 115200)
@@ -89,9 +103,6 @@ def copy_files_to_usb(files):
             print str(why)
         except Exception as err:
             print str(err)
-
-
-
 
 def delete_raw_files(files):
     for f in files:
@@ -181,7 +192,7 @@ dispy = monitory
 print dispx, dispy
 
 screen = pygame.display.set_mode((dispx,dispy), pygame.FULLSCREEN)
-BackGround = Background('background.png', [0,0])
+BackGround = Background(str(background_image), [0,0])
 
 screen.fill([255, 255, 255])
 screen.blit(BackGround.image, BackGround.rect)
@@ -231,7 +242,7 @@ def getFilename(prefix, number):
     return str(directory) + '/' + str(prefix) + '_' + str(number) + '.jpg'
 
 def takePhotoSerie():
-    global pictures
+    global pictures, button_pressed
     pictures = []
     fileprefix = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
     GPIO.output(led_button, False)
@@ -261,6 +272,7 @@ def takePhotoSerie():
     pygame.time.wait(15000)
     delete_raw_files(files)
     GPIO.output(led_button, True)
+	button_pressed = False
     start_screen()
 
 def showPictures():
@@ -339,17 +351,17 @@ def takePicture(filename, file_number, wait_time = 10):
 def thank_you():
     screen.fill([255, 255, 255])
     screen.blit(BackGround.image, BackGround.rect)
-    t = textDropShadow(bigfont, 'thank', 20, textcolor, shadowcolor)
+    t = textDropShadow(bigfont, thankyou1, 20, textcolor, shadowcolor)
     screen.blit(t, (int(((dispx-pic_preview_width)/2)-(t.get_size()[0]/2)), 200))
-    t = textDropShadow(bigfont, 'you', 20, textcolor, shadowcolor)
+    t = textDropShadow(bigfont, thankyou2, 20, textcolor, shadowcolor)
     screen.blit(t, (int(((dispx-pic_preview_width)/2)-(t.get_size()[0]/2)), 450))
 
-    t = textDropShadow(tinyfont, 'it might take one or two minutes', 3, textcolor, shadowcolor)
+    t = textDropShadow(tinyfont, thankyou3, 3, textcolor, shadowcolor)
     x = int(dispx - pic_preview_width - 20 - t.get_size()[0])
     y = int(dispy - (t.get_size()[1] * 3))
     screen.blit(t, (x, y))
 
-    t = textDropShadow(tinyfont, 'to get the photos ready ...', 3, textcolor, shadowcolor)
+    t = textDropShadow(tinyfont, thankyou4, 3, textcolor, shadowcolor)
     x = int(dispx - pic_preview_width - 20 - t.get_size()[0])
     y = int(dispy - (t.get_size()[1] * 2))
     screen.blit(t, (x, y))
@@ -361,17 +373,17 @@ def thank_you():
 def start_screen():
     screen.fill([255, 255, 255])
     screen.blit(BackGround.image, BackGround.rect)
-    t = textDropShadow(smallfont, 'Press button', 10, textcolor, shadowcolor)
+    t = textDropShadow(smallfont, start1, 10, textcolor, shadowcolor)
     screen.blit(t, (int((dispx/2)-(t.get_size()[0]/2)), int((dispy/2)-(t.get_size()[1])-75)))
-    t = textDropShadow(smallfont, 'to start', 10, textcolor, shadowcolor)
+    t = textDropShadow(smallfont, start2, 10, textcolor, shadowcolor)
     screen.blit(t, (int((dispx/2)-(t.get_size()[0]/2)), int((dispy/2)-(t.get_size()[1])+75)))
 
-    t = textDropShadow(tinyfont, 'Four pictures are taken', 5, textcolor, shadowcolor)
+    t = textDropShadow(tinyfont, start3, 5, textcolor, shadowcolor)
     x = int(dispx - 20 - t.get_size()[0])
     y = int(dispy - (t.get_size()[1]*3) )
     screen.blit(t, (x, y))
 
-    t = textDropShadow(tinyfont, 'with a delay of 10 seconds', 5, textcolor, shadowcolor)
+    t = textDropShadow(tinyfont, start4, 5, textcolor, shadowcolor)
     x = int(dispx - 20 - t.get_size()[0])
     y = int(dispy - (t.get_size()[1] * 2))
     screen.blit(t, (x, y))
@@ -404,6 +416,8 @@ idle_time = datetime.datetime.now()
 hook = []
 hook.append(str(printhook))
 subprocess.Popen(hook)
+
+button_pressed = False
 
 while 1:
     event = pygame.event.poll()
