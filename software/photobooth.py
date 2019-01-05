@@ -405,7 +405,7 @@ def start_screen():
         t = textDropShadow(tinyfont, 'Password: photobox', 10, textcolor, shadowcolor)
         screen.blit(t, (80, int(dispy-75)))
     except pygame.error, message:
-         
+        pass
 
     displayPrintQueue()
 
