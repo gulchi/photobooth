@@ -28,11 +28,11 @@ background_image = 'background.png'
 start1 = u"Drücke den"
 start2 = u"gelben Knopf"
 
-start3 = 'Vier Bilder'
+start3 = 'Es gibt vier Bilder'
 start4 = 'mit 10 Sekunden Pause'
 
 thankyou1 = 'Danke'
-thankyou2 = ''
+thankyou2 = ' '
 thankyou3 = 'Bitte warte bis zu'
 thankyou4 = 'zwei Minuten für den Druck'
 
