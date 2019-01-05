@@ -238,6 +238,16 @@ def my_gpio_callback(channel):
 def shutdown():
     subprocess.call("sudo shutdown -h now", shell=True)
 
+def displayPrintQueue():
+    try:
+        queue = int(subprocess.check_output('lpstat -o | wc -l', shell=True))
+		if queue > 0:
+            t = textDropShadow(tinyfont, str(queue), 5, textcolor, shadowcolor)
+            x = int(dispx - 20 - t.get_size()[0])
+            y = int((t.get_size()[1]) )
+            screen.blit(t, (x, y))
+	except OSError:
+		print "Error while getting print queue"
 
 def getFilename(prefix, number):
     return str(directory) + '/' + str(prefix) + '_' + str(number) + '.jpg'
@@ -397,6 +407,7 @@ def start_screen():
     except pygame.error, message:
          print 'Cannot load image.'
 
+    displayPrintQueue()
 
     pygame.display.update()
 
@@ -419,7 +430,7 @@ hook.append(str(printhook))
 subprocess.Popen(hook)
 
 button_pressed = False
-
+last_start_update = time.time()
 while 1:
     event = pygame.event.poll()
     GPIO.output(led_button, True)
@@ -435,5 +446,10 @@ while 1:
         pygame.quit()
         GPIO.cleanup()
         break
+		
+	if (time.time() - last_start_update) > 10:
+        last_start_update = time.time()
+        start_screen()	
 
     pygame.time.wait(25)
+	
